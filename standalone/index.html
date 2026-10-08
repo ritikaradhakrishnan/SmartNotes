@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f5ef">
+  <meta name="description" content="A little space for your big ideas. Capture, organize, and rediscover your notes with SmartNotes.">
+  <title>SmartNotes — A little space for big ideas</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%232e5143'/%3E%3Cpath d='M19 17h26v32H19z' fill='none' stroke='%23f4f0db' stroke-width='3'/%3E%3Cpath d='M26 26h12M26 33h12M26 40h8' stroke='%23f4f0db' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="./"><span class="brand-icon">s<span>✦</span></span>SmartNotes<span class="brand-dot">.</span></a>
+    <div class="workspace-label"><span class="workspace-avatar">Y</span><div>Your workspace<small>A home for your thoughts</small></div></div>
+    <button class="primary new-note" id="new-note"><span>＋</span> New note <kbd>N</kbd></button>
+    <div class="nav-label">WORKSPACE</div>
+    <nav aria-label="Notes filters">
+      <button class="nav-item active" data-view="all"><span>▤</span>All notes <b id="all-count">0</b></button>
+      <button class="nav-item" data-view="pinned"><span>☆</span>Pinned <b id="pinned-count">0</b></button>
+      <button class="nav-item" data-view="archived"><span>▱</span>Archive <b id="archive-count">0</b></button>
+    </nav>
+    <div class="nav-label notebooks-label">NOTEBOOKS</div>
+    <nav aria-label="Notebooks" id="notebooks"></nav>
+    <div class="sidebar-bottom">
+      <div class="local-card"><span class="status-dot"></span> Saved on this device<p>Your notes stay in this browser.<br>Export a copy to keep them safe.</p><button id="export-notes">Export notes <span>↗</span></button></div>
+      <div class="utility"><button id="import-notes">↓ Import</button><button id="about">About <span>↗</span></button></div>
+    </div>
+  </aside>
+  <div class="main-shell">
+    <header class="topbar"><div class="breadcrumb">Your workspace <span>/</span> <strong id="breadcrumb">All notes</strong></div><div class="top-right"><span class="private-label"><span class="status-dot"></span> Personal & private</span><button class="avatar" id="workspace-info" aria-label="Workspace information">Y</button></div></header>
+    <main>
+      <div class="intro"><div><div class="eyebrow">LESS SCATTER. MORE CLARITY.</div><h1>A little space for <em>big ideas.</em></h1><p>Capture a thought. Find a connection. Make something of it.</p></div><div class="notebook-art" aria-hidden="true"><div class="orbit">✧</div><div class="paper paper-back"></div><div class="paper paper-front"><span>ideas,</span><span>in bloom.</span><i></i><i></i><b>✳</b></div><span class="art-star">✦</span></div></div>
+      <section class="discovery"><div class="discovery-icon">✧</div><div><h2>Your next idea is already in here.</h2><p>Search across your notes and pick up where inspiration left off.</p></div><button id="discover">Find a thought <span>↗</span></button></section>
+      <section aria-labelledby="section-title" class="notes-section">
+        <div class="section-top"><div class="section-heading"><h2 id="section-title">All notes</h2><span id="result-count">0 notes</span></div><div class="controls"><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search your notes…" aria-label="Search your notes"><kbd>/</kbd></label><select id="sort" aria-label="Sort notes"><option value="updated">Last edited</option><option value="created">Newest first</option><option value="title">Title A–Z</option></select></div></div>
+        <div class="filter-row"><div id="tags"></div><span class="view-hint">A thought worth keeping.</span></div>
+        <div id="notes-grid" class="notes-grid"></div>
+        <div id="empty" class="empty" hidden><span>✧</span><h3>No notes here yet</h3><p>Give your next idea a place to land.</p><button class="primary" id="empty-new">Create a note</button></div>
+      </section>
+      <div class="mobile-backup"><span><span class="status-dot"></span>Saved in this browser</span><button id="mobile-export">Export</button><button id="mobile-import">Import</button><button id="mobile-about">About</button></div>
+      <footer><span>Made for the way your mind works.</span><span>SmartNotes <span class="footer-star">✦</span></span></footer>
+    </main>
+  </div>
+  <dialog id="editor" aria-labelledby="editor-heading"><form id="note-form"><div class="dialog-top"><div class="eyebrow" id="editor-heading">A THOUGHT WORTH KEEPING</div><button type="button" class="icon-button" id="close-editor" aria-label="Close note">×</button></div><input id="note-title" class="title-input" placeholder="Untitled thought" aria-label="Note title" maxlength="180" required><div class="editor-meta"><label>Notebook <select id="note-notebook"><option>Personal</option><option>Work</option><option>Learning</option></select></label><label>Color <select id="note-color"><option value="cream">Cream</option><option value="green">Sage</option><option value="pink">Rose</option><option value="blue">Sky</option><option value="yellow">Butter</option></select></label></div><textarea id="note-content" aria-label="Note content" placeholder="Let your thoughts unfold…" maxlength="100000"></textarea><label class="tags-label">Tags <input id="note-tags" placeholder="ideas, projects, someday" maxlength="200"></label><div class="editor-bottom"><span id="word-count">0 words</span><div><button class="subtle" type="button" id="cancel-edit">Cancel</button><button class="primary" type="submit">Save note <span>↗</span></button></div></div></form></dialog>
+  <dialog id="info-dialog" aria-labelledby="info-title"><div class="dialog-top"><span class="eyebrow">HELLO, SMARTNOTES</span><button id="close-info" class="icon-button" aria-label="Close information">×</button></div><h2 id="info-title">Your ideas. A little more organized.</h2><p>This public edition gives you a private notebook inside your own browser. Create, search, pin, and organize notes, then export a backup whenever you like.</p><p>Notes are stored on this device, for this website only. They do not sync between devices. Clearing browser data removes them, so keep an exported copy.</p><div class="info-status"><span class="status-dot"></span> Notes workspace is ready</div><p class="muted">AI chat and account-based cloud sync are not connected in this edition. The original Clerk, MongoDB, OpenAI, and Pinecone application is preserved in the project for the next stage.</p><a href="https://github.com/ritikaradhakrishnan/SmartNotes" target="_blank" rel="noopener noreferrer">View the project on GitHub ↗</a></dialog>
+  <input id="import-file" type="file" accept="application/json,.json" hidden>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
