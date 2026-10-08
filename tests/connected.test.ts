@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {chatSchema, relevantNotes, noteContext} from '../src/lib/chat';
+import {chatSchema, relevantNotes, noteContext, finalAnswer} from '../src/lib/chat';
 import {createNoteSchema, updateNoteSchema} from '../src/lib/validation/note';
 
 test('chat rejects injected system roles and oversized messages', () => {
@@ -23,4 +23,11 @@ test('retrieval prioritizes matching notes and excludes unrelated notes when mat
 test('model context is bounded and preserves reference numbering', () => {
  const context=noteContext([{id:'1',title:'Example',content:'a'.repeat(50000)}]);
  assert.ok(context.startsWith('[1] Example\n')); assert.ok(context.length<3100);
+});
+
+test('returns only the final answer from legacy Qwen reasoning output', () => {
+ assert.equal(finalAnswer('<think>working text</think>Friday [1].'), 'Friday [1].');
+ assert.equal(finalAnswer('working text</think>Friday [1].'), 'Friday [1].');
+ assert.equal(finalAnswer('Friday [1].'), 'Friday [1].');
+ assert.throws(() => finalAnswer('<think>unfinished reasoning'));
 });

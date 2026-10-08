@@ -23,3 +23,10 @@ export function relevantNotes<T extends SearchNote>(notes: T[], question: string
 export function noteContext(notes: SearchNote[]) {
   return notes.map((n,i) => `[${i+1}] ${n.title}\n${(n.content ?? "").slice(0, 3000)}`).join("\n\n");
 }
+
+// Older local Qwen templates can include reasoning tags in message.content.
+export function finalAnswer(content: string): string {
+  const answer = (content.split(/<\/think>/i).at(-1) ?? "").replace(/<think>[\s\S]*$/i, "").trim();
+  if (!answer) throw new Error("OLLAMA_EMPTY_ANSWER");
+  return answer;
+}

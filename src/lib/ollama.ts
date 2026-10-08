@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { finalAnswer } from "./chat";
 
 const resultSchema = z.object({ message: z.object({ content: z.string().min(1) }) });
 export async function askOllama(messages: {role: string; content: string}[]) {
@@ -16,5 +17,5 @@ export async function askOllama(messages: {role: string; content: string}[]) {
     signal: AbortSignal.timeout(120000),
   });
   if (!response.ok) throw new Error(response.status === 404 ? "OLLAMA_MODEL_MISSING" : "OLLAMA_UNAVAILABLE");
-  return resultSchema.parse(await response.json()).message.content;
+  return finalAnswer(resultSchema.parse(await response.json()).message.content);
 }
