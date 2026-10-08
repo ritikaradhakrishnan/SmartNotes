@@ -56,25 +56,25 @@ export default function AddEditNoteDialog({
             ...input,
           }),
         });
-        if (!response.ok) throw Error("Status code: " + response.status);
+        if (!response.ok) { const data = await response.json(); throw Error(data.error || "Could not save this note."); }
       } else {
         const response = await fetch("/api/notes", {
           method: "POST",
           body: JSON.stringify(input),
         });
-        if (!response.ok) throw Error("Status code: " + response.status);
+        if (!response.ok) { const data = await response.json(); throw Error(data.error || "Could not save this note."); }
         form.reset();
       }
       router.refresh();
       setOpen(false);
     } catch (error) {
       console.error(error);
-      alert("Something went wrong. Please try again.");
+      alert(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     }
   }
 
   async function deleteNote() {
-    if (!noteToEdit) return;
+    if (!noteToEdit || !confirm("Permanently delete this note?")) return;
     setDeleteInProgress(true);
     try {
       const response = await fetch("/api/notes", {
@@ -83,12 +83,12 @@ export default function AddEditNoteDialog({
           id: noteToEdit.id,
         }),
       });
-      if (!response.ok) throw Error("Status code: " + response.status);
+      if (!response.ok) { const data = await response.json(); throw Error(data.error || "Could not save this note."); }
       router.refresh();
       setOpen(false);
     } catch (error) {
       console.error(error);
-      alert("Something went wrong. Please try again.");
+      alert(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     } finally {
       setDeleteInProgress(false);
     }

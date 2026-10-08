@@ -16,7 +16,11 @@ Open `http://127.0.0.1:4317`. Run model and backup checks with `node --test test
 
 Build the browser edition with `node scripts/build-browser.mjs`. GitHub Actions tests the app and publishes the generated `dist/` directory to GitHub Pages after changes are pushed to `main`. The original Next.js application is retained below for a future connected edition. It needs service credentials and dependency updates before deployment; it is not part of this static launch.
 
-## Original connected application
+## Connected application: Clerk + MongoDB + local Ollama
+
+See [LOCAL_SETUP.md](LOCAL_SETUP.md) for private local configuration and startup. The connected edition now uses your local Ollama model instead of OpenAI and Pinecone. The historical project description below describes the original architecture.
+
+## Original project background
 
 AI Chatbot with Next.js, OpenAI, and Vector Embeddings
 The project showcases the development of an AI chatbot leveraging Next.js 14, resulting in a seamless user experience. Here's an overview of the technologies and features incorporated:

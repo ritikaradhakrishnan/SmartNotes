@@ -1,12 +1,12 @@
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default function Home() {
-  const { userId } = auth();
+export default async function Home() {
+  const { userId } = await auth();
 
   if (userId) redirect("/notes");
 
@@ -19,8 +19,8 @@ export default function Home() {
         </span>
       </div>
       <p className="max-w-prose text-center">
-        An intelligent note-taking app with AI integration, built with OpenAI,
-        Pinecone, Next.js, Shadcn UI, Clerk, and more.
+        Your private notes, synced with MongoDB. Sign in to write, organize,
+        and ask your local Ollama assistant about your ideas.
       </p>
       <Button size="lg" asChild>
         <Link href="/notes">Open</Link>

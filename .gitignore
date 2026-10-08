@@ -37,3 +37,8 @@ yarn-error.log*
 next-env.d.ts
 
 .env
+
+# Editor recovery files may contain local credentials
+*.swp
+*.swo
+*~

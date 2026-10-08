@@ -1,14 +1,13 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ThemeProvider } from "./ThemeProvider";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "SmartNotes",
-  description: "Your AI intergrated smart note-taking app!",
+  description: "Private notes with local Ollama chat.",
 };
 
 export default function RootLayout({
@@ -17,9 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={inter.className}>
+    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up" signInFallbackRedirectUrl="/notes" signUpFallbackRedirectUrl="/notes">
+      <html lang="en" suppressHydrationWarning>
+        <body className="font-sans">
           <ThemeProvider attribute="class">{children}</ThemeProvider>
         </body>
       </html>

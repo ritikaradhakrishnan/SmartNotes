@@ -1,152 +1,43 @@
-import { notesIndex } from "@/lib/db/pinecone";
 import prisma from "@/lib/db/prisma";
-import { getEmbedding } from "@/lib/openai";
-import {
-  createNoteSchema,
-  deleteNoteSchema,
-  updateNoteSchema,
-} from "@/lib/validation/note";
-import { auth } from "@clerk/nextjs";
+import { createNoteSchema, updateNoteSchema, deleteNoteSchema } from "@/lib/validation/note";
+import { auth } from "@clerk/nextjs/server";
+
+export const runtime = "nodejs";
+const failure = (message: string, status: number) => Response.json({ error: message }, { status });
 
 export async function POST(req: Request) {
+  const { userId } = await auth();
+  if (!userId) return failure("Sign in to save notes.", 401);
+  const input = createNoteSchema.safeParse(await req.json().catch(() => null));
+  if (!input.success) return failure("Use a title up to 180 characters and content up to 50,000 characters.", 400);
   try {
-    const body = await req.json();
-
-    const parseResult = createNoteSchema.safeParse(body);
-
-    if (!parseResult.success) {
-      console.error(parseResult.error);
-      return Response.json({ error: "Invalid input" }, { status: 400 });
-    }
-
-    const { title, content } = parseResult.data;
-
-    const { userId } = auth();
-
-    if (!userId) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const embedding = await getEmbeddingForNote(title, content);
-
-    const note = await prisma.$transaction(async (tx) => {
-      const note = await tx.note.create({
-        data: {
-          title,
-          content,
-          userId,
-        },
-      });
-
-      await notesIndex.upsert([
-        {
-          id: note.id,
-          values: embedding,
-          metadata: { userId },
-        },
-      ]);
-
-      return note;
-    });
-
+    const note = await prisma.note.create({ data: { ...input.data, userId } });
     return Response.json({ note }, { status: 201 });
-  } catch (error) {
-    console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
+  } catch { return failure("Could not save to MongoDB. Check the database connection and try again.", 503); }
 }
 
 export async function PUT(req: Request) {
+  const { userId } = await auth();
+  if (!userId) return failure("Sign in to edit notes.", 401);
+  const input = updateNoteSchema.safeParse(await req.json().catch(() => null));
+  if (!input.success) return failure("Invalid note input.", 400);
+  const { id, ...data } = input.data;
   try {
-    const body = await req.json();
-
-    const parseResult = updateNoteSchema.safeParse(body);
-
-    if (!parseResult.success) {
-      console.error(parseResult.error);
-      return Response.json({ error: "Invalid input" }, { status: 400 });
-    }
-
-    const { id, title, content } = parseResult.data;
-
-    const note = await prisma.note.findUnique({ where: { id } });
-
-    if (!note) {
-      return Response.json({ error: "Note not found" }, { status: 404 });
-    }
-
-    const { userId } = auth();
-
-    if (!userId || userId !== note.userId) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const embedding = await getEmbeddingForNote(title, content);
-
-    const updatedNote = await prisma.$transaction(async (tx) => {
-      const updatedNote = await tx.note.update({
-        where: { id },
-        data: {
-          title,
-          content,
-        },
-      });
-
-      await notesIndex.upsert([
-        {
-          id,
-          values: embedding,
-          metadata: { userId },
-        },
-      ]);
-
-      return updatedNote;
-    });
-
-    return Response.json({ updatedNote }, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
+    // Ownership is part of the mutation, not a separate check that can become stale.
+    const result = await prisma.note.updateMany({ where: { id, userId }, data });
+    if (!result.count) return failure("Note not found.", 404);
+    return Response.json({ ok: true });
+  } catch { return failure("Could not update the note. Please try again.", 503); }
 }
 
 export async function DELETE(req: Request) {
+  const { userId } = await auth();
+  if (!userId) return failure("Sign in to delete notes.", 401);
+  const input = deleteNoteSchema.safeParse(await req.json().catch(() => null));
+  if (!input.success) return failure("Invalid note ID.", 400);
   try {
-    const body = await req.json();
-
-    const parseResult = deleteNoteSchema.safeParse(body);
-
-    if (!parseResult.success) {
-      console.error(parseResult.error);
-      return Response.json({ error: "Invalid input" }, { status: 400 });
-    }
-
-    const { id } = parseResult.data;
-
-    const note = await prisma.note.findUnique({ where: { id } });
-
-    if (!note) {
-      return Response.json({ error: "Note not found" }, { status: 404 });
-    }
-
-    const { userId } = auth();
-
-    if (!userId || userId !== note.userId) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.note.delete({ where: { id } });
-      await notesIndex.deleteOne(id);
-    });
-
-    return Response.json({ message: "Note deleted" }, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
-
-async function getEmbeddingForNote(title: string, content: string | undefined) {
-  return getEmbedding(title + "\n\n" + content ?? "");
+    const result = await prisma.note.deleteMany({ where: { id: input.data.id, userId } });
+    if (!result.count) return failure("Note not found.", 404);
+    return Response.json({ ok: true });
+  } catch { return failure("Could not delete the note. Please try again.", 503); }
 }
