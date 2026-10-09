@@ -33,7 +33,7 @@ export default function AIChatBox({ open, onClose }: {open: boolean; onClose: ()
     } finally { setLoading(false); activeRequest.current = null; }
   }
   if (!open) return null;
-  return <section aria-label="Chat with your notes" className="fixed bottom-3 right-3 z-20 flex h-[min(600px,90vh)] w-[calc(100%-24px)] max-w-lg flex-col rounded-xl border bg-background shadow-xl">
+  return <section aria-label="Chat with your notes" className="fixed bottom-3 right-3 z-20 flex h-[min(600px,90vh)] w-[calc(100%-24px)] max-w-lg flex-col rounded-xl border bg-background text-foreground shadow-xl">
     <header className="flex items-center gap-2 border-b p-4"><Bot/><div className="flex-1"><h2 className="font-semibold">Ask your notes</h2><p className="text-xs text-muted-foreground">Local Ollama · selected recent notes · answers can be imperfect</p></div><Button variant="ghost" size="icon" aria-label="Close chat" onClick={onClose}><X/></Button></header>
     <div ref={scroll} className="flex-1 overflow-y-auto p-4" aria-live="polite">
       {!messages.length && <p className="py-12 text-center text-sm text-muted-foreground">Ask about an idea, a plan, or a detail in your saved notes.</p>}
