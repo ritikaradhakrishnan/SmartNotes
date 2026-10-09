@@ -4,7 +4,7 @@ import { Note } from "@prisma/client";
 import { UserButton } from "@clerk/nextjs";
 import AddEditNoteDialog from "./AddEditNoteDialog";
 import AIChatBox from "./AIChatBox";
-import { Plus, Search, Sparkles, NotebookPen } from "lucide-react";
+import { Plus, Search, Sparkles, BookOpen } from "lucide-react";
 
 export default function NotesWorkspace({notes}:{notes:Note[]}) {
  const [query,setQuery]=useState("");const [open,setOpen]=useState(false);const [selected,setSelected]=useState<Note>();const [chat,setChat]=useState(false);
@@ -13,7 +13,7 @@ export default function NotesWorkspace({notes}:{notes:Note[]}) {
  function backup(){const url=URL.createObjectURL(new Blob([JSON.stringify({app:'SmartNotes',edition:'connected',notes},null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='smartnotes-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
  return <div className="min-h-screen bg-[#f8f7f3] text-[#2c3830]">
  <aside className="border-b border-[#dedfd5] bg-[#efefe8] p-5 md:fixed md:inset-y-0 md:w-60 md:border-r md:p-7">
- <a href="/notes" className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><NotebookPen className="rounded-lg bg-[#355847] p-1 text-white" size={34}/>SmartNotes.</a>
+ <a href="/notes" className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><BookOpen className="rounded-lg bg-[#355847] p-1 text-white" size={34}/>SmartNotes.</a>
  <p className="mt-8 text-sm font-medium">Your workspace</p><p className="mt-1 text-xs text-[#737d69]">A home for your thoughts</p>
  <button onClick={()=>edit()} className="mt-6 flex w-full items-center gap-2 rounded-lg bg-[#355847] px-4 py-3 text-sm text-white"><Plus size={18}/>New note</button>
  <p className="mb-3 mt-8 text-[10px] tracking-widest text-[#737d69]">WORKSPACE</p><div className="flex justify-between rounded-lg bg-[#e0e5d9] p-3 text-sm">All notes <span>{notes.length}</span></div>
