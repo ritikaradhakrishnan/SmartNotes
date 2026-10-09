@@ -12,6 +12,8 @@ The local `.env.local` file is ignored by Git. Never commit it or put the secret
 
 ## Run
 
+For an already installed and configured checkout, open Ollama and run `npm run demo`. See [INTERVIEW_DEMO.md](INTERVIEW_DEMO.md) for a short walkthrough and an accurate explanation of the current architecture.
+
 ```sh
 npm install
 npm run check:setup
