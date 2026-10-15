@@ -2,7 +2,7 @@ import { CreateNoteSchema, createNoteSchema } from "@/lib/validation/note";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Note } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Dialog,
@@ -46,6 +46,28 @@ export default function AddEditNoteDialog({
     },
   });
 
+  const { isDirty, isSubmitting } = form.formState;
+  const busy = isSubmitting || deleteInProgress;
+
+  useEffect(() => {
+    if (!open || (!isDirty && !busy)) return;
+    function warnBeforeLeaving(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [open, isDirty, busy]);
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) {
+      if (busy) return;
+      if (isDirty && !confirm("Discard your unsaved changes?")) return;
+      form.reset();
+    }
+    setOpen(nextOpen);
+  }
+
   async function onSubmit(input: CreateNoteSchema) {
     try {
       if (noteToEdit) {
@@ -65,6 +87,7 @@ export default function AddEditNoteDialog({
         if (!response.ok) { const data = await response.json(); throw Error(data.error || "Could not save this note."); }
         form.reset();
       }
+      form.reset(noteToEdit ? input : { title: "", content: "" });
       router.refresh();
       setOpen(false);
     } catch (error) {
@@ -95,7 +118,7 @@ export default function AddEditNoteDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{noteToEdit ? "Edit Note" : "Add Note"}</DialogTitle>
@@ -109,7 +132,7 @@ export default function AddEditNoteDialog({
                 <FormItem>
                   <FormLabel>Note title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Note title" {...field} />
+                    <Input placeholder="Note title" disabled={busy} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,7 +145,7 @@ export default function AddEditNoteDialog({
                 <FormItem>
                   <FormLabel>Note content</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Note content" {...field} />
+                    <Textarea placeholder="Note content" disabled={busy} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -145,7 +168,7 @@ export default function AddEditNoteDialog({
                 loading={form.formState.isSubmitting}
                 disabled={deleteInProgress}
               >
-                Submit
+                Save note
               </LoadingButton>
             </DialogFooter>
           </form>
