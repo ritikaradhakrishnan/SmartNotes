@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import LoadingButton from "./ui/loading-button";
 import { Textarea } from "./ui/textarea";
 
@@ -35,6 +36,7 @@ export default function AddEditNoteDialog({
   noteToEdit,
 }: AddEditNoteDialogProps) {
   const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   const router = useRouter();
 
@@ -62,9 +64,13 @@ export default function AddEditNoteDialog({
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
       if (busy) return;
-      if (isDirty && !confirm("Discard your unsaved changes?")) return;
+      if (isDirty) {
+        setConfirmDiscard(true);
+        return;
+      }
       form.reset();
     }
+    setConfirmDiscard(false);
     setOpen(nextOpen);
   }
 
@@ -120,10 +126,24 @@ export default function AddEditNoteDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
+        {confirmDiscard && (
+          <section role="alert" className="space-y-3 rounded-lg border p-4">
+            <p className="font-medium">Discard your unsaved changes?</p>
+            <p className="text-sm text-muted-foreground">Your saved note will stay unchanged.</p>
+            <div className="flex gap-2">
+              <Button type="button" autoFocus onClick={() => setConfirmDiscard(false)}>Keep editing</Button>
+              <Button type="button" variant="destructive" onClick={() => {
+                form.reset();
+                setConfirmDiscard(false);
+                setOpen(false);
+              }}>Discard changes</Button>
+            </div>
+          </section>
+        )}
         <DialogHeader>
           <DialogTitle>{noteToEdit ? "Edit Note" : "Add Note"}</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
+        {!confirmDiscard && <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormField
               control={form.control}
@@ -172,7 +192,7 @@ export default function AddEditNoteDialog({
               </LoadingButton>
             </DialogFooter>
           </form>
-        </Form>
+        </Form>}
       </DialogContent>
     </Dialog>
   );
