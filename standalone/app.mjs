@@ -41,7 +41,7 @@ $('#note-title').oninput=()=>$('#note-title').setCustomValidity('');
 $('#close-editor').onclick=closeEditor;$('#cancel-edit').onclick=closeEditor;editor.addEventListener('cancel',e=>{e.preventDefault();closeEditor()});
 $('#new-note').onclick=()=>openEditor();$('#empty-new').onclick=()=>openEditor();$('#search').oninput=render;$('#sort').onchange=render;
 $('#discover').onclick=()=>{changeView('all');$('#search').focus();$('#search').scrollIntoView({behavior:'smooth',block:'center'})};
-const info=$('#info-dialog');$('#about').onclick=()=>info.showModal();$('#workspace-info').onclick=()=>info.showModal();$('#close-info').onclick=()=>info.close();
+const info=$('#info-dialog');$('#brand-about').onclick=()=>info.showModal();$('#about').onclick=()=>info.showModal();$('#workspace-info').onclick=()=>info.showModal();$('#close-info').onclick=()=>info.close();
 function exportNotes(){const blob=new Blob([JSON.stringify({app:'SmartNotes',version:1,exportedAt:new Date().toISOString(),notes},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=element('a');a.href=url;a.download=`smartnotes-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Backup exported. Keep it somewhere safe.')}
 $('#export-notes').onclick=exportNotes;$('#import-notes').onclick=()=>$('#import-file').click();
 $('#mobile-export').onclick=exportNotes;$('#mobile-import').onclick=()=>$('#import-file').click();$('#mobile-about').onclick=()=>info.showModal();
