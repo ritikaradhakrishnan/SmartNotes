@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up" signInFallbackRedirectUrl="/notes" signUpFallbackRedirectUrl="/notes">
       <html lang="en" suppressHydrationWarning>
-        <body className="font-sans">
+        <body className="font-mono">
           <ThemeProvider attribute="class" forcedTheme="dark">{children}</ThemeProvider>
         </body>
       </html>
